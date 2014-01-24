@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html ng-app>
+	<head>
+		<title>LiB</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+		<script src="lib-controller.js"></script>
+	</head>
+	<body>
+		<div id="container" class="container" ng-controller="LibCtrl">
+			<div>
+				<div class="col-xs-6">
+					<h1 ng-show="round.current != 0">LiB - {{round.current}}</h1>
+					<h1 ng-hide="round.current != 0">LiB</h1>
+				</div>
+				<div class="col-xs-6 text-right" ng-show="round.current <= round.max">
+					<h1>
+						{{intToString(timer.min)}}:{{intToString(timer.sec)}}
+					</h1>
+				</div>
+			
+				<br/>
+				<button class="btn btn-success col-xs-12" type="submit" ng-click="startPause()" ng-show="timer.stopped&&!gameOver">Start</button>
+				<button class="btn btn-danger col-xs-12" type="submit" ng-click="startPause()" ng-hide="timer.stopped||gameOver">Pause</button>
+			</div>
+			<br/>
+			<br/>
+			<form id="form" ng-submit="addPlayer()" ng-hide="round.current != 0">
+				<input id="nameInput" type="text" class="form-control" ng-model="nameInput">
+			</form>
+			<div id="names">
+				<div ng-repeat="player in players">
+					<div class="col-xs-6 btn-info playercell text-center" ng-click="addPoint(player)">{{player.name}} - {{player.points}}</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
