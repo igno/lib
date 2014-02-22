@@ -6,6 +6,10 @@ function LibCtrl($scope, $timeout) {
 		current: 0,
 		max: 9
 	};
+	
+	var pauseTimer;
+	var lastPointEnabled = false;
+	var ROUND_TIME_IN_MINUTES = 1;
 
 	$scope.nameInput = "";
 	
@@ -21,6 +25,9 @@ function LibCtrl($scope, $timeout) {
 	$scope.addPoint = function(player) {
 		if ($scope.timer.stopped != true) {
 			player.points++;
+		} else if(lastPointEnabled) {
+			player.points++;
+			lastPointEnabled = false;
 		}
 	}
 	
@@ -28,14 +35,20 @@ function LibCtrl($scope, $timeout) {
 		if($scope.round.current == $scope.round.max) {
 			return;
 		}
+		var isInit = $scope.timer.initialized;
 		if(!$scope.timer.initialized) {
 			$scope.timer.initialized = true;
+			$scope.timer.initTime = new Date();
 			$scope.round.current++;
 		}
 		if($scope.timer.stopped == true) {
 			$scope.timer.timeout = $timeout(onTimeout, 1000);
+			if(isInit) {
+				$scope.timer.initTime = new Date($scope.timer.initTime.getTime() + new Date().getTime() - pauseTimer.getTime());
+			}
 		} else {
 			$timeout.cancel($scope.timer.timeout);
+			pauseTimer = new Date();
 		}
 		$scope.timer.stopped = !$scope.timer.stopped;
 	}
@@ -48,18 +61,17 @@ function LibCtrl($scope, $timeout) {
 	}
 	
     onTimeout = function(){
-		if($scope.timer.min == 0 && $scope.timer.sec == 0) {
+		var newTime = new Date();
+		$scope.timer.min = ROUND_TIME_IN_MINUTES-Math.ceil(((newTime-$scope.timer.initTime)/1000)/60);
+		$scope.timer.sec = 60-(Math.floor(((newTime-$scope.timer.initTime)/1000))%60);
+		if(newTime-$scope.timer.initTime >= ROUND_TIME_IN_MINUTES*60*1000) {
 			$timeout.cancel($scope.timer.timeout);
 			if($scope.round.current == $scope.round.max) {
 				$scope.gameOver = true;
 			}
+			lastPointEnabled = true;
 			resetTimer();
-		} else if($scope.timer.sec == 0) {
-			$scope.timer.sec = 59;
-			$scope.timer.min -= 1;
-			$scope.timer.timeout = $timeout(onTimeout,1000);
 		} else {
-			$scope.timer.sec -= 1;
 			$scope.timer.timeout = $timeout(onTimeout,1000);
 		}
 	}
@@ -81,7 +93,8 @@ function LibCtrl($scope, $timeout) {
 	
 	resetTimer = function() {
 		$scope.timer = {
-			min: 30,
+			initTime: undefined,
+			min: ROUND_TIME_IN_MINUTES,
 			sec: 0,
 			initialized: false,
 			stopped: true,
