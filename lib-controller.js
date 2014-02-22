@@ -9,7 +9,7 @@ function LibCtrl($scope, $timeout) {
 	
 	var pauseTimer;
 	var lastPointEnabled = false;
-	var ROUND_TIME_IN_MINUTES = 1;
+	var ROUND_TIME_IN_MINUTES = 30;
 
 	$scope.nameInput = "";
 	
